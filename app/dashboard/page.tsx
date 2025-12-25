@@ -6,10 +6,11 @@ import { CreateTagForm } from "./create-tag-form";
 
 export default async function DashboardPage() {
     const session = await auth();
-    if (!session) redirect("/api/auth/signin");
+    const userId = session?.user?.id;
+    if (!userId) redirect("/auth/signin");
 
     const tags = await prisma.tag.findMany({
-        where: { userId: session.user?.id },
+        where: { userId },
         include: { _count: { select: { catalysts: true, reports: true } } },
         orderBy: { name: 'asc' }
     });
