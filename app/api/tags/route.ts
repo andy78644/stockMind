@@ -24,6 +24,14 @@ export async function POST(req: Request) {
 
         if (!name || !type) return new NextResponse("Missing fields", { status: 400 });
 
+        const userExists = await prisma.user.findUnique({
+            where: { id: session.user.id }
+        });
+
+        if (!userExists) {
+            return new NextResponse("User profile not found in database. Please sign out and sign in again.", { status: 404 });
+        }
+
         const tag = await prisma.tag.create({
             data: {
                 name,

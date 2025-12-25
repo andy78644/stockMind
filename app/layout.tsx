@@ -19,7 +19,7 @@ export default async function RootLayout({
   const session = await auth();
 
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" suppressHydrationWarning>
       <body className={inter.className}>
         <nav className="border-b bg-secondary/50 backdrop-blur-md px-6 py-4 flex items-center justify-between">
           <Link href="/" className="text-xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
