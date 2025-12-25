@@ -49,8 +49,8 @@ export const prisma = new PrismaClient({ adapter });
 1.  將程式碼推送到 GitHub。
 2.  在 Vercel 中匯入專案。
 3.  設定上述環境變數。
-4.  **重要**：在部署前，您需要先產出 Prisma Client。Vercel 會自動執行 `npm run build`，這會觸發 `prisma generate`。
-5.  手動推送 Schema 到 Turso (本地執行一次)：
+4.  **重要**：我已經在 `package.json` 中加入了 `"postinstall": "prisma generate"`，所以 Vercel 現在會自動幫您產出 Prisma Client。您不需要手動執行額外指令。
+5.  **推送 Schema 到 Supabase** (本地執行一次)：
     ```bash
     DATABASE_URL="libsql://..." DATABASE_AUTH_TOKEN="..." npx prisma db push
     ```
