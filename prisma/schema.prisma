@@ -1,0 +1,39 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  tags      Tag[]
+}
+
+model Tag {
+  id        String     @id @default(uuid())
+  name      String
+  type      String     // "COMPANY" or "INDUSTRY"
+  userId    String
+  user      User       @relation(fields: [userId], references: [id])
+  catalysts Catalyst[]
+  reports   DailyReport[]
+}
+
+model Catalyst {
+  id        String   @id @default(uuid())
+  content   String
+  tagId     String
+  tag       Tag      @relation(fields: [tagId], references: [id])
+}
+
+model DailyReport {
+  id        String   @id @default(uuid())
+  date      DateTime @default(now())
+  content   String
+  tagId     String
+  tag       Tag      @relation(fields: [tagId], references: [id])
+}
