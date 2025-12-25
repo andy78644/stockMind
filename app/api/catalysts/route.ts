@@ -33,3 +33,34 @@ export async function POST(req: Request) {
         return new NextResponse("Internal Error", { status: 500 });
     }
 }
+
+export async function DELETE(req: Request) {
+    const session = await auth();
+    if (!session?.user?.id) return new NextResponse("Unauthorized", { status: 401 });
+
+    try {
+        const { searchParams } = new URL(req.url);
+        const catalystId = searchParams.get("id");
+
+        if (!catalystId) return new NextResponse("Missing catalyst id", { status: 400 });
+
+        // Verify ownership through the catalyst's tag
+        const catalyst = await prisma.catalyst.findUnique({
+            where: { id: catalystId },
+            include: { tag: true },
+        });
+
+        if (!catalyst || catalyst.tag.userId !== session.user.id) {
+            return new NextResponse("Forbidden", { status: 403 });
+        }
+
+        await prisma.catalyst.delete({
+            where: { id: catalystId },
+        });
+
+        return new NextResponse(null, { status: 204 });
+    } catch (error) {
+        return new NextResponse("Internal Error", { status: 500 });
+    }
+}
+

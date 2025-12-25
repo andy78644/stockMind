@@ -27,6 +27,15 @@ export function CatalystSection({ tagId, initialCatalysts }: { tagId: string, in
         });
     }
 
+    async function deleteCatalyst(catalystId: string) {
+        await fetch(`/api/catalysts?id=${catalystId}`, {
+            method: "DELETE",
+        });
+        startTransition(() => {
+            router.refresh();
+        });
+    }
+
     return (
         <div className="space-y-4 border rounded-xl p-6 bg-card">
             <h3 className="text-lg font-semibold flex items-center gap-2">
@@ -39,9 +48,9 @@ export function CatalystSection({ tagId, initialCatalysts }: { tagId: string, in
 
             <ul className="space-y-3">
                 {initialCatalysts.map((c) => (
-                    <li key={c.id} className="flex items-start gap-3 p-3 rounded-lg bg-secondary/50 text-sm">
+                    <li key={c.id} className="flex items-start gap-3 p-3 rounded-lg bg-secondary/50 text-sm group">
                         <span className="mt-1 w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
-                        <div className="prose prose-sm dark:prose-invert max-w-none">
+                        <div className="prose prose-sm dark:prose-invert max-w-none flex-1">
                             <ReactMarkdown
                                 components={{
                                     a: ({ ...props }) => (
@@ -61,6 +70,14 @@ export function CatalystSection({ tagId, initialCatalysts }: { tagId: string, in
                                 {c.content}
                             </ReactMarkdown>
                         </div>
+                        <button
+                            onClick={() => deleteCatalyst(c.id)}
+                            disabled={isPending}
+                            className="opacity-0 group-hover:opacity-100 p-1 text-muted-foreground hover:text-destructive transition-all disabled:opacity-50"
+                            title="Delete catalyst"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                        </button>
                     </li>
                 ))}
                 {initialCatalysts.length === 0 && (
