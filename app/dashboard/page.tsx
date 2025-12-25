@@ -4,6 +4,16 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { CreateTagForm } from "./create-tag-form";
 
+interface TagWithCount {
+    id: string;
+    name: string;
+    type: string;
+    _count: {
+        catalysts: number;
+        reports: number;
+    };
+}
+
 export default async function DashboardPage() {
     const session = await auth();
     const userId = session?.user?.id;
@@ -13,7 +23,7 @@ export default async function DashboardPage() {
         where: { userId },
         include: { _count: { select: { catalysts: true, reports: true } } },
         orderBy: { name: 'asc' }
-    });
+    }) as unknown as TagWithCount[];
 
     return (
         <div className="max-w-5xl mx-auto space-y-8">
@@ -23,7 +33,7 @@ export default async function DashboardPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {tags.map((tag) => (
+                {tags.map((tag: TagWithCount) => (
                     <Link
                         key={tag.id}
                         href={`/dashboard/${tag.id}`}
