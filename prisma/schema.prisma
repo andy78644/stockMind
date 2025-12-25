@@ -1,9 +1,11 @@
 datasource db {
   provider = "postgresql"
+  schemas  = ["StockMind"]
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
 }
 
 model User {
@@ -11,6 +13,8 @@ model User {
   email     String   @unique
   name      String?
   tags      Tag[]
+
+  @@schema("StockMind")
 }
 
 model Tag {
@@ -21,6 +25,8 @@ model Tag {
   user      User       @relation(fields: [userId], references: [id])
   catalysts Catalyst[]
   reports   DailyReport[]
+
+  @@schema("StockMind")
 }
 
 model Catalyst {
@@ -28,6 +34,8 @@ model Catalyst {
   content   String
   tagId     String
   tag       Tag      @relation(fields: [tagId], references: [id])
+
+  @@schema("StockMind")
 }
 
 model DailyReport {
@@ -36,4 +44,6 @@ model DailyReport {
   content   String
   tagId     String
   tag       Tag      @relation(fields: [tagId], references: [id])
+
+  @@schema("StockMind")
 }
