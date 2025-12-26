@@ -18,13 +18,14 @@ model User {
 }
 
 model Tag {
-  id        String     @id @default(uuid())
-  name      String
-  type      String     // "COMPANY" or "INDUSTRY"
-  userId    String
-  user      User       @relation(fields: [userId], references: [id])
-  catalysts Catalyst[]
-  reports   DailyReport[]
+  id               String            @id @default(uuid())
+  name             String
+  type             String            // "COMPANY" or "INDUSTRY"
+  userId           String
+  user             User              @relation(fields: [userId], references: [id])
+  catalysts        Catalyst[]
+  reports          DailyReport[]
+  overallAnalyses  OverallAnalysis[]
 
   @@schema("StockMind")
 }
@@ -39,6 +40,16 @@ model Catalyst {
 }
 
 model DailyReport {
+  id        String   @id @default(uuid())
+  date      DateTime @default(now())
+  content   String
+  tagId     String
+  tag       Tag      @relation(fields: [tagId], references: [id])
+
+  @@schema("StockMind")
+}
+
+model OverallAnalysis {
   id        String   @id @default(uuid())
   date      DateTime @default(now())
   content   String
