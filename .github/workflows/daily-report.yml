@@ -1,0 +1,39 @@
+
+name: Daily Stock Report
+
+on:
+  schedule:
+    # Runs at 21:00 UTC (which is 05:00 AM Taiwan Time next day, or adjust as needed)
+    # 09:00 AM Taiwan Time = 01:00 UTC
+    - cron: '0 0 * * *' 
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  daily-report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Run Daily Report Script
+        run: npx tsx scripts/generate-daily-report.ts
+        env:
+          # You need to add these secrets in GitHub Repo Settings > Secrets and variables > Actions
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          # SMTP settings if you switch back, otherwise ignore
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}

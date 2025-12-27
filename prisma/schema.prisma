@@ -26,6 +26,7 @@ model Tag {
   catalysts        Catalyst[]
   reports          DailyReport[]
   overallAnalyses  OverallAnalysis[]
+  assessments      TagAssessment[]
 
   @@schema("StockMind")
 }
@@ -56,5 +57,18 @@ model OverallAnalysis {
   tagId     String
   tag       Tag      @relation(fields: [tagId], references: [id])
 
+
+  @@schema("StockMind")
+}
+
+model TagAssessment {
+  id        String   @id @default(uuid())
+  date      DateTime @default(now())
+  tagId     String
+  tag       Tag      @relation(fields: [tagId], references: [id])
+  points    String[] // List of key points
+  sentiment String   // "POSITIVE", "NEGATIVE", "NEUTRAL"
+  summary   String?  // Short summary
+  
   @@schema("StockMind")
 }

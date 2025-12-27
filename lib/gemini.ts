@@ -1,13 +1,19 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-const apiKey = process.env.GEMINI_API_KEY;
+const apiKeys = process.env.GEMINI_API_KEY?.split(",") || [];
+let currentKeyIndex = 0;
 
-export async function generateDailyReport(tagName: string, catalysts: string[]) {
-    if (!apiKey) {
+function getGeminiClient() {
+    if (apiKeys.length === 0) {
         throw new Error("GEMINI_API_KEY is not set");
     }
+    const key = apiKeys[currentKeyIndex];
+    currentKeyIndex = (currentKeyIndex + 1) % apiKeys.length;
+    return new GoogleGenerativeAI(key.trim());
+}
 
-    const genAI = new GoogleGenerativeAI(apiKey);
+export async function generateDailyReport(tagName: string, catalysts: string[]) {
+    const genAI = getGeminiClient();
     // Using gemini-2.5-flash as requested by user to test availability.
     const model = genAI.getGenerativeModel({
         model: "gemini-2.5-flash",
@@ -67,11 +73,7 @@ export async function generateDailyReport(tagName: string, catalysts: string[]) 
 }
 
 export async function generateOverallAnalysis(tagName: string, catalysts: string[]) {
-    if (!apiKey) {
-        throw new Error("GEMINI_API_KEY is not set");
-    }
-
-    const genAI = new GoogleGenerativeAI(apiKey);
+    const genAI = getGeminiClient();
     const model = genAI.getGenerativeModel({
         model: "gemini-2.5-flash",
         tools: [
@@ -144,6 +146,57 @@ export async function generateOverallAnalysis(tagName: string, catalysts: string
         if (error.response?.candidates?.[0]?.finishReason === "SAFETY") {
             console.error("Safety block triggered");
         }
+        throw error;
+    }
+}
+
+export async function generateTagAssessment(tagName: string, catalysts: string[]): Promise<{ points: string[], sentiment: string, summary: string }> {
+    const genAI = getGeminiClient();
+    const model = genAI.getGenerativeModel({
+        model: "gemini-2.5-flash",
+        tools: [
+            {
+                googleSearch: {},
+            } as any,
+        ],
+    });
+
+    const catalystList = catalysts.length > 0
+        ? catalysts.map((c) => `- ${c}`).join("\n")
+        : "無指定指標";
+
+    const prompt = `
+  你是一位專業的財經分析助手。請使用繁體中文（正體中文）進行回覆。
+
+  目標對象： "${tagName}"
+  分析日期： ${new Date().toISOString().split("T")[0]}
+  
+  需要關注的催化劑/指標：
+  ${catalystList}
+
+  任務：
+  請針對該公司過去 24-48 小時的最新狀況進行快速評估。
+  
+  輸出 JSON 格式 (不要有 markdown code block，直接輸出 JSON)：
+  {
+    "points": ["關鍵點1", "關鍵點2", "關鍵點3"], // 3-5 個重點
+    "sentiment": "POSITIVE", // 或者是 "NEGATIVE", "NEUTRAL"
+    "summary": "一句話總結"
+  }
+  
+  Sentiment 判斷標準：
+  - POSITIVE: 有重大正面新聞（如營收超預期、新產品發布成功、股價大漲等）
+  - NEGATIVE: 有重大負面新聞（如營收未達標、負面醜聞、股價大跌等）
+  - NEUTRAL: 無重大消息或多空消息抵銷
+  `;
+
+    try {
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const text = response.text().replace(/```json/g, "").replace(/```/g, "").trim();
+        return JSON.parse(text);
+    } catch (error: any) {
+        console.error("Gemini Tag Assessment Error:", error.message || error);
         throw error;
     }
 }
