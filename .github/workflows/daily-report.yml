@@ -3,9 +3,9 @@ name: Daily Stock Report
 
 on:
   schedule:
-    # Runs at 21:00 UTC (which is 05:00 AM Taiwan Time next day, or adjust as needed)
-    # 09:00 AM Taiwan Time = 01:00 UTC
-    - cron: '0 0 * * *' 
+    # Runs at 22:15 UTC (which is 06:15 AM Taiwan Time next day)
+    # Avoids peak hours (00:00 UTC) significantly
+    - cron: '15 22 * * *' 
   workflow_dispatch: # Allows manual trigger
 
 jobs:
