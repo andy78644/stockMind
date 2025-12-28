@@ -10,7 +10,8 @@ interface Catalyst {
     content: string;
 }
 
-export function CatalystSection({ tagId, initialCatalysts }: { tagId: string, initialCatalysts: Catalyst[] }) {
+export function CatalystSection({ tagId, initialCatalysts, showHeader = true }: { tagId: string, initialCatalysts: Catalyst[], showHeader?: boolean }) {
+
     const router = useRouter();
     const [content, setContent] = useState("");
     const [isPending, startTransition] = useTransition();
@@ -38,13 +39,17 @@ export function CatalystSection({ tagId, initialCatalysts }: { tagId: string, in
 
     return (
         <div className="space-y-4 border rounded-xl p-6 bg-card">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-                <Target className="w-5 h-5 text-primary" />
-                Catalysts
-            </h3>
-            <p className="text-sm text-muted-foreground">
-                Events or metrics to monitor for this tag.
-            </p>
+            {showHeader && (
+                <>
+                    <h3 className="text-lg font-semibold flex items-center gap-2">
+                        <Target className="w-5 h-5 text-primary" />
+                        Catalysts
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                        Events or metrics to monitor for this tag.
+                    </p>
+                </>
+            )}
 
             <ul className="space-y-3">
                 {initialCatalysts.map((c) => (

@@ -23,7 +23,7 @@ export function ReportList({ reports }: { reports: Report[] }) {
     return (
         <div className="space-y-6">
             {reports.map((report) => (
-                <div key={report.id} className="border rounded-xl p-6 bg-card shadow-sm animate-in fade-in slide-in-from-bottom-4">
+                <div key={report.id} className="border rounded-xl p-6 bg-card shadow-sm animate-in fade-in slide-in-from-bottom-4 overflow-hidden">
                     <div className="flex justify-between items-center mb-4 pb-4 border-b">
                         <h3 className="font-semibold text-lg">Daily Briefing</h3>
                         <time className="text-sm text-muted-foreground" suppressHydrationWarning>

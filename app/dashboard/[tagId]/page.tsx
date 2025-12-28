@@ -49,10 +49,11 @@ export default async function TagPage({ params }: { params: Promise<{ tagId: str
                 </Link>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                 {/* Left Column: Context/Catalysts */}
                 <div className="lg:col-span-1 space-y-6">
-                    <CatalystSection tagId={tag.id} initialCatalysts={tag.catalysts} />
+                    <h2 className="text-2xl font-semibold">Monitoring</h2>
+                    <CatalystSection tagId={tag.id} initialCatalysts={tag.catalysts} showHeader={false} />
                 </div>
 
                 {/* Right Column: Intelligence/Reports */}
