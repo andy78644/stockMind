@@ -26,38 +26,35 @@ export async function generateDailyReport(tagName: string, catalysts: string[]) 
 
     const catalystList = catalysts.length > 0
         ? catalysts.map((c) => `- ${c}`).join("\n")
-        : "無指定指標";
+        : "No specific user-defined catalysts.";
 
     const prompt = `
-  你是一位專業的財經分析助手。請使用繁體中文（正體中文）進行回覆。
-  
-  目標對象： "${tagName}"
-  今天是： ${new Date().toISOString().split("T")[0]}
-  
-  需要關注的催化劑/指標：
-  ${catalystList}
-  
-  任務：
-  1. 搜尋過去 24-48 小時內關於 "${tagName}" 的最新重要新聞、新聞稿或財務更新。
-  2. 簡明扼要地總結關鍵資訊。
-  3. 特別分析是否有任何新聞直接影響或提及上述「需要關注的催化劑/指標」。
-  
-  重要格式要求：
-  - 所有連結必須使用 Markdown 格式：[新聞標題或描述性文字](URL)
-  - 請勿直接顯示原始 URL，務必使用有意義的標題作為連結文字
-  - 例如：[特斯拉Q4交付量創新高](https://example.com/news) 而非直接貼網址
-  
-  輸出格式 (Markdown)：
-  ## 每日總結
-  [新聞總結，包含格式化的來源連結]
-  
-  ## 催化劑影響分析
-  - **[催化劑名稱]**: [影響評估，若無相關新聞則寫「無相關新聞」]
-  
-  ## 參考來源
-  - [來源標題1](URL1)
-  - [來源標題2](URL2)
-  `;
+Role: Senior Equity Research Analyst.
+Context: Daily News Briefing for "${tagName}".
+Date: ${new Date().toISOString().split("T")[0]}
+
+**Objective**:
+Scan the last 24-48 hours of news for MATERIAL updates. Ignore noise. Focus on what moves the needle.
+
+**Input Data**:
+- Target: "${tagName}"
+- Watchlist Catalysts: ${catalystList}
+
+**Operational Rules**:
+1. **Language**: Internal reasoning in English. **FINAL OUTPUT MUST BE IN TRADITIONAL CHINESE**.
+2. **Filtering**: Only report news that impacts financials, sentiment, or the thesis.
+3. **Citations**: **ALWAYS** use Markdown format \`[Title](URL)\` for links. Never show raw URLs.
+
+**Output Format (Markdown)**:
+## 每日重點速覽
+[Summary of top 2-3 material stories with citation]
+
+## 催化劑動態 (Catalyst Update)
+- **[Catalyst Name]**: [Status Update or "No News"]
+
+## 參考來源
+- [Title](URL)
+`;
 
     try {
         const result = await model.generateContent(prompt);
@@ -65,9 +62,6 @@ export async function generateDailyReport(tagName: string, catalysts: string[]) 
         return response.text();
     } catch (error: any) {
         console.error("Gemini Generation Error:", error.message || error);
-        if (error.response?.candidates?.[0]?.finishReason === "SAFETY") {
-            console.error("Safety block triggered");
-        }
         throw error;
     }
 }
@@ -85,57 +79,63 @@ export async function generateOverallAnalysis(tagName: string, catalysts: string
 
     const catalystList = catalysts.length > 0
         ? catalysts.map((c) => `- ${c}`).join("\n")
-        : "無指定指標";
+        : "No specific user-defined catalysts.";
 
     const prompt = `
-  你是一位專業的財經分析助手。請使用繁體中文（正體中文）進行回覆。
-  
-  目標對象： "${tagName}"
-  分析日期： ${new Date().toISOString().split("T")[0]}
-  
-  需要關注的催化劑/指標：
-  ${catalystList}
-  
-  任務：
-  這是一份**整體分析報告**，不同於每日新聞摘要。請提供深入且全面的分析：
-  
-  1. **基本面分析**：公司/產業的財務健康狀況、營收成長趨勢、獲利能力
-  2. **競爭優勢**：護城河、市場地位、核心競爭力分析
-  3. **產業趨勢**：所處產業的長期發展方向、市場規模變化
-  4. **風險評估**：主要風險因素、潛在威脅
-  5. **投資論點**：綜合以上分析，提出整體投資觀點
-  
-  重要格式要求：
-  - 所有連結必須使用 Markdown 格式：[新聞標題或描述性文字](URL)
-  - 請勿直接顯示原始 URL，務必使用有意義的標題作為連結文字
-  
-  輸出格式 (Markdown)：
-  ## 整體分析摘要
-  [簡短的投資觀點總結]
-  
-  ## 基本面分析
-  [財務健康、營收、獲利分析]
-  
-  ## 競爭優勢分析
-  [護城河、市場地位分析]
-  
-  ## 產業趨勢
-  [長期產業發展方向]
-  
-  ## 風險評估
-  - **風險1**: [說明]
-  - **風險2**: [說明]
-  
-  ## 催化劑追蹤
-  - **[催化劑名稱]**: [與整體投資論點的關聯性]
-  
-  ## 投資論點
-  [綜合結論與建議]
-  
-  ## 參考來源
-  - [來源標題1](URL1)
-  - [來源標題2](URL2)
-  `;
+Role: Senior Equity Research Analyst (Top-Tier Investment Bank perspective).
+Task: Analyze the target "${tagName}" as of ${new Date().toISOString().split("T")[0]}.
+
+**Input Data:**
+- Target: "${tagName}"
+- User-Watched Catalysts: ${catalystList}
+
+**Operational Rules:**
+1. **Language**: The internal reasoning can be in English, but the **FINAL OUTPUT MUST BE IN TRADITIONAL CHINESE (Taiwan Professional Finance Terminology)**.
+2. **Entity Detection**: First, determine if "${tagName}" is a specific Company or an Industry/Sector.
+   - If **Company**: Focus on Financials, Valuation, Moat.
+   - If **Industry**: Focus on TAM (Total Addressable Market), CAGR, Regulatory Trends.
+3. **Citations**: **ALWAYS** use Markdown format \`[Title](URL)\` for all links. Never show raw URLs.
+
+**Analysis Requirements (Deep Dive):**
+
+1. **Executive Summary**:
+   - Give a clear Bullish/Bearish/Neutral rating.
+   - Summarize the "One Thing" that matters most right now.
+
+2. **Fundamental & Financial Health (CRITICAL)**:
+   - **Metrics**: detailed Revenue, Margins (Gross/Operating), FCF (Free Cash Flow).
+   - **Valuation**: Is it cheap or expensive historicaly? (P/E, P/S, EV/EBITDA).
+   - **Balance Sheet**: Debt levels, Cash position.
+
+3. **Catalyst & Driver Analysis**:
+   - **Review User's List**: Analyze the "User-Watched Catalysts" provided above.
+   - **DISCOVER NEW CATALYSTS**: Identify 2-3 *hidden* or *upcoming* catalysts that the user did NOT mention but should be watching (e.g., upcoming product launches, regulatory changes, competitor failure).
+
+4. **Competitive Moat & Risks**:
+   - Why do they win? (Network effect, Cost advantage, Switching costs).
+   - What kills the thesis? (Bear case).
+
+**Output Format (Markdown)**:
+## 投資觀點摘要 (Investment Thesis)
+[Comprehensive summary]
+
+## 基本面深度分析 (Fundamentals)
+[Data-rich analysis with specific numbers]
+
+## 關鍵催化劑追蹤 (Catalysts)
+### 用戶關注列表：
+- **[Catalyst]**: [Analysis]
+
+### 分析師新增關注 (New Opportunities)：
+- **[New Catalyst 1]**: [Why it matters]
+- **[New Catalyst 2]**: [Why it matters]
+
+## 競爭優勢與風險 (Moat & Risks)
+[Moat analysis and key risks]
+
+## 參考來源
+- [Title](URL)
+`;
 
     try {
         const result = await model.generateContent(prompt);
@@ -143,9 +143,6 @@ export async function generateOverallAnalysis(tagName: string, catalysts: string
         return response.text();
     } catch (error: any) {
         console.error("Gemini Overall Analysis Error:", error.message || error);
-        if (error.response?.candidates?.[0]?.finishReason === "SAFETY") {
-            console.error("Safety block triggered");
-        }
         throw error;
     }
 }
@@ -163,32 +160,31 @@ export async function generateTagAssessment(tagName: string, catalysts: string[]
 
     const catalystList = catalysts.length > 0
         ? catalysts.map((c) => `- ${c}`).join("\n")
-        : "無指定指標";
+        : "No specific catalysts";
 
     const prompt = `
-  你是一位專業的財經分析助手。請使用繁體中文（正體中文）進行回覆。
+Role: Senior Financial Analyst.
+Task: Quick Sentiment Assessment for "${tagName}" over the last 24-48 hours.
 
-  目標對象： "${tagName}"
-  分析日期： ${new Date().toISOString().split("T")[0]}
-  
-  需要關注的催化劑/指標：
-  ${catalystList}
+**Rules**:
+1. Output strictly in JSON.
+2. Language: Traditional Chinese.
+3. Sentiment Logic:
+   - POSITIVE: Material good news (Earnings beat, Product launch, Upgrade).
+   - NEGATIVE: Material bad news (Miss, Lawsuit, Downgrade).
+   - NEUTRAL: Noise or mixed signals.
 
-  任務：
-  請針對該公司過去 24-48 小時的最新狀況進行快速評估。
-  
-  輸出 JSON 格式 (不要有 markdown code block，直接輸出 JSON)：
-  {
-    "points": ["關鍵點1", "關鍵點2", "關鍵點3"], // 3-5 個重點
-    "sentiment": "POSITIVE", // 或者是 "NEGATIVE", "NEUTRAL"
-    "summary": "一句話總結"
-  }
-  
-  Sentiment 判斷標準：
-  - POSITIVE: 有重大正面新聞（如營收超預期、新產品發布成功、股價大漲等）
-  - NEGATIVE: 有重大負面新聞（如營收未達標、負面醜聞、股價大跌等）
-  - NEUTRAL: 無重大消息或多空消息抵銷
-  `;
+**Input**:
+Target: ${tagName}
+Catalysts: ${catalystList}
+
+**Output JSON**:
+{
+  "points": ["Point 1", "Point 2", "Point 3"], // 3-5 key bullet points
+  "sentiment": "POSITIVE", // or "NEGATIVE", "NEUTRAL"
+  "summary": "One sentence summary"
+}
+`;
 
     try {
         const result = await model.generateContent(prompt);
