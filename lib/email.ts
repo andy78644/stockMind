@@ -1,9 +1,20 @@
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Resend v6 throws if instantiated with an undefined key. Next.js's
+// "Collecting page data" build step evaluates server modules without
+// runtime env, so we must defer construction until first use.
+let resendClient: Resend | null = null;
+
+function getResend(): Resend | null {
+    const key = process.env.RESEND_API_KEY;
+    if (!key) return null;
+    if (!resendClient) resendClient = new Resend(key);
+    return resendClient;
+}
 
 export async function sendDailyReportEmail(to: string, html: string, subject?: string) {
-    if (!process.env.RESEND_API_KEY) {
+    const resend = getResend();
+    if (!resend) {
         console.warn("RESEND_API_KEY is not set, skipping email.");
         return;
     }
