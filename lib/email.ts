@@ -2,7 +2,7 @@ import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export async function sendDailyReportEmail(to: string, html: string) {
+export async function sendDailyReportEmail(to: string, html: string, subject?: string) {
     if (!process.env.RESEND_API_KEY) {
         console.warn("RESEND_API_KEY is not set, skipping email.");
         return;
@@ -12,7 +12,7 @@ export async function sendDailyReportEmail(to: string, html: string) {
         const data = await resend.emails.send({
             from: 'stockmind@andy78644.com', // Or user's verified domain
             to: to,
-            subject: `每日投資速報 - ${new Date().toISOString().split("T")[0]}`,
+            subject: subject ?? `每日投資速報 - ${new Date().toISOString().split("T")[0]}`,
             html: html,
         });
 
