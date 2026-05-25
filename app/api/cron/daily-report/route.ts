@@ -21,6 +21,7 @@ export async function POST(req: Request) {
 
     try {
         const users = await prisma.user.findMany({
+            where: { notificationsEnabled: true },
             include: {
                 tags: {
                     include: { catalysts: true },
