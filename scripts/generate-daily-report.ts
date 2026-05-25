@@ -77,6 +77,7 @@ async function main() {
     // Check Date to avoid running multiple times? (Optional, handled by schedule mostly)
 
     const users = await prisma.user.findMany({
+        where: { notificationsEnabled: true },
         include: {
             tags: {
                 include: { catalysts: true },
